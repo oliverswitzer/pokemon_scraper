@@ -6,18 +6,31 @@ class Scraper
   attr_accessor :html
 
   def initialize(url)
-    @html = Nokogiri::HTML(open(url))
+    download = open(url)
+    @html = Nokogiri::HTML(download)
   end
 
   def get_poke_names
-    pokemon_html = html.search("#mw-content-text table tbody tr")
-    pokemon_html.inspect
-  end
+    pokemon_array = []
 
+    all_anchor_titles = html.search("a @title")
+    # debugger
+    poke_regex = /(\w*)\s(\(Pokémon\))/
+    all_anchor_titles.each do |anchor|
+      anchor_str = anchor.text
+      m = poke_regex.match(anchor_str)
+      # debugger
+      if m.nil?
+        #do nothing
+      elsif m[2] == "(Pokémon)"
+        pokemon_array << m[1]
+      end
+    end
+    pokemon_array
+  end
 end
 
 
 
-poke_scraper = Scraper.new("http://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number")
 
-poke_scraper.get_poke_names
+
